@@ -20,15 +20,15 @@ export default async function handler(req, res) {
     const { message, mode, isPro } = req.body;
 
     if (!message) {
-      return res.status(400).json({ error: 'Message is required' });
+      return res.status(400).json({ error: 'يرجى إدخال نص الرسالة.' });
     }
 
     // Restriction for Max model
     if (mode === 'max' && !isPro) {
-        return res.status(403).json({ error: 'نموذج Max متاح فقط لمشتركي خطة Pro.' });
+        return res.status(403).json({ error: 'نموذج Afnan Max متاح فقط لمشتركي خطة Pro.' });
     }
 
-    // Configuration from User Input
+    // Configuration for OpenRouter
     const OPENROUTER_API_KEY = "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";
     const MODEL_NAME = "sourceful/riverflow-v2-pro";
 
@@ -49,23 +49,33 @@ export default async function handler(req, res) {
         headers: {
             "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
             "Content-Type": "application/json",
-            "HTTP-Referer": "https://afnan-ai.vercel.app", 
+            "HTTP-Referer": "https://afnanai.com", 
             "X-Title": "Afnan AI" 
         },
-        timeout: 40000 // 40 seconds timeout for larger models
+        timeout: 50000 // Increased timeout for stability
     });
 
     if (response.data && response.data.choices && response.data.choices[0]) {
         res.status(200).json({ output: response.data.choices[0].message.content });
     } else {
-        throw new Error('Invalid response structure from OpenRouter');
+        throw new Error('فشل الحصول على استجابة صحيحة من نظام الذكاء الاصطناعي.');
     }
 
   } catch (error) {
-    console.error('API Error:', error.response ? error.response.data : error.message);
+    console.error('Afnan AI Error:', error.response ? error.response.data : error.message);
+    
+    // Professional error message without mentioning Gemini
+    let errorMessage = 'حدث خطأ في الخادم أثناء معالجة طلبك عبر Afnan AI.';
+    
+    if (error.code === 'ECONNABORTED') {
+        errorMessage = 'استغرق الطلب وقتاً أطول من المتوقع، يرجى المحاولة مرة أخرى.';
+    } else if (error.response && error.response.status === 401) {
+        errorMessage = 'خطأ في المصادقة: يرجى التحقق من مفتاح الـ API الخاص بـ OpenRouter.';
+    }
+
     res.status(500).json({ 
-        error: 'حدث خطأ في الخادم أثناء معالجة طلبك.',
-        details: error.response ? JSON.stringify(error.response.data) : error.message 
+        error: errorMessage,
+        details: error.message 
     });
   }
 }
