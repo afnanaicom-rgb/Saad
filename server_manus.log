@@ -1,0 +1,19 @@
+nohup: ignoring input
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+Server running on port 3000
+Error: {
+  error: {
+    code: null,
+    param: 'type',
+    type: 'invalid_request_error',
+    message: "Input should be 'input_text'"
+  }
+}
+Error: {
+  error: {
+    code: null,
+    param: 'type',
+    type: 'invalid_request_error',
+    message: "Input should be 'input_text'"
+  }
+}

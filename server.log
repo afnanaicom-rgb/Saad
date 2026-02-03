@@ -1,0 +1,18 @@
+nohup: ignoring input
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ✅ audit secrets and track compliance: https://dotenvx.com/ops
+Server running on port 3000Error: {
+  error: {
+    code: null,
+    param: 'type',
+    type: 'invalid_request_error',
+    message: "Input should be 'input_text'"
+  }
+}
+Error: {
+  error: {
+    code: null,
+    param: 'type',
+    type: 'invalid_request_error',
+    message: "Input should be 'input_text'"
+  }
+}

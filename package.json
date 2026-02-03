@@ -1,0 +1,31 @@
+{
+  "name": "saad",
+  "version": "1.0.0",
+  "main": "firebase-config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/afnanaicom-rgb/Saad.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/afnanaicom-rgb/Saad/issues"
+  },
+  "homepage": "https://github.com/afnanaicom-rgb/Saad#readme",
+  "description": "",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "axios": "^1.13.4",
+    "cors": "^2.8.6",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "form-data": "^4.0.5",
+    "formidable": "^3.5.4",
+    "multer": "^2.0.2",
+    "openai": "^6.17.0"
+  }
+}

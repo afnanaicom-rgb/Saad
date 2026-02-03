@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Afnan AI - الوكيل الذكي الخارق</title>
+    
+    <!-- SEO & Google Optimization (Production Mode) -->
+    <meta name="description" content="أفنان AI - الوكيل الذكي الأكثر تطوراً للبحث والتنفيذ والربط مع أدواتك المفضلة مثل GitHub و Google Drive.">
+    <meta name="keywords" content="Afnan AI, ذكاء اصطناعي, وكيل ذكي, GitHub, Google Drive, Gmail, بحث ويب, توليد صور">
+    <meta name="author" content="Afnan AI Team">
+    <link rel="canonical" href="https://afnanai.com/afnan.html">
+    <meta property="og:title" content="Afnan AI - Agent Studio">
+    <meta property="og:description" content="الوكيل الذكي المتكامل لتنفيذ مهامك وربط أدواتك.">
+    <meta property="og:image" content="https://i.postimg.cc/26TTPbxH/grok-image-x6em5fj-edit-96291120058942.png">
+    <meta property="og:url" content="https://afnanai.com/afnan.html">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    
+    <!-- Google Schema for AI Agent -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Afnan AI",
+      "operatingSystem": "Web",
+      "applicationCategory": "AI Assistant",
+      "description": "Advanced AI Agent for task automation and tool integration.",
+      "image": "https://i.postimg.cc/26TTPbxH/grok-image-x6em5fj-edit-96291120058942.png"
+    }
+    </script>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Noto Sans Arabic', sans-serif; background-color: #000000; color: #e5e5e5; overflow: hidden; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .glass-header { background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .glass-input-container { background: rgba(15, 15, 15, 0.8); backdrop-filter: blur(40px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 -10px 40px rgba(0,0,0,0.5); }
+        
+        .glass-input-container:focus-within { border-color: rgba(255, 255, 255, 0.15); box-shadow: 0 -10px 50px rgba(0,0,0,0.7); }
+        textarea:focus { outline: none !important; box-shadow: none !important; }
+
+        .bottom-sheet {
+            position: fixed; bottom: 0; left: 0; right: 0; 
+            background: #0a0a0a; border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px 24px 0 0; z-index: 100;
+            transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            max-height: 85vh; overflow-y: auto;
+        }
+        .bottom-sheet.active { transform: translateY(0); }
+        .sheet-handle { width: 40px; height: 4px; background: rgba(255, 255, 255, 0.2); border-radius: 2px; margin: 12px auto; }
+
+        #sidebar { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: -10px 0 40px rgba(0,0,0,0.8); }
+        .chat-bubble-user { background: #151515; border-radius: 20px 20px 4px 20px; padding: 14px 18px; max-width: 85%; align-self: flex-start; border: 1px solid rgba(255,255,255,0.05); }
+        .chat-bubble-ai { background: transparent; padding: 12px 0; max-width: 95%; align-self: flex-end; width: 100%; }
+        
+        .animate-msg { animation: fadeInUp 0.5s ease-out forwards; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .ai-logo-img { width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); }
+        .tool-row-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; items-center; justify-center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); transition: 0.2s; cursor: pointer; }
+        .tool-row-icon:hover { background: rgba(255,255,255,0.08); transform: scale(1.05); }
+
+        .connector-item { display: flex; items-center; justify-between; padding: 14px; border-radius: 16px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.03); margin-bottom: 8px; cursor: pointer; transition: 0.2s; }
+        .connector-item:hover { background: rgba(255,255,255,0.05); }
+
+        #attachmentPreview { display: none; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 16px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); }
+        
+        /* Loading animation */
+        .typing-dot { width: 4px; height: 4px; background: #666; border-radius: 50%; animation: typing 1.4s infinite; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+    </style>
+</head>
+<body class="flex flex-col h-screen relative">
+
+    <div id="overlay" onclick="closeAll()" class="hidden fixed inset-0 z-[90] bg-black/80 backdrop-blur-md transition-opacity duration-300"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed top-0 right-0 h-full w-[300px] bg-[#050505] z-50 flex flex-col border-l border-white/5 transform translate-x-full">
+        <div class="p-6 flex justify-between items-center">
+            <h2 class="font-bold text-lg text-white">المكتبة</h2>
+            <button onclick="toggleSidebar()" class="w-8 h-8 rounded-full hover:bg-white/5 flex items-center justify-center transition"><i class="fa-solid fa-xmark text-gray-500"></i></button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto px-4 space-y-2 hide-scrollbar" id="chatHistory"></div>
+
+        <div class="p-4 border-t border-white/5">
+            <button onclick="openSheet('connectorsSheet')" class="w-full flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition mb-4">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-sliders text-indigo-400"></i>
+                    <span class="text-sm font-bold">الإدارة والموصلات</span>
+                </div>
+                <i class="fa-solid fa-chevron-left text-[10px] text-gray-500"></i>
+            </button>
+
+            <div class="flex items-center justify-between px-2">
+                <div class="flex items-center gap-3">
+                    <img id="userAvatar" src="" class="w-9 h-9 rounded-full border border-white/10">
+                    <div class="flex flex-col">
+                        <span id="userName" class="text-xs font-bold text-white truncate w-24">User</span>
+                        <span id="userCredits" class="text-[10px] text-yellow-500 font-medium">0 Credit</span>
+                    </div>
+                </div>
+                <a href="settings.html" class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center hover:bg-white/10 transition text-gray-400">
+                    <i class="fa-solid fa-gear text-sm"></i>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <header class="glass-header fixed top-0 left-0 right-0 z-30 flex justify-between items-center px-6 py-4">
+        <div class="flex items-center gap-4">
+            <button onclick="toggleSidebar()" class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/10 transition"><i class="fa-solid fa-bars-staggered text-gray-300"></i></button>
+            <div class="flex items-center gap-2">
+                <img src="https://i.postimg.cc/26TTPbxH/grok-image-x6em5fj-edit-96291120058942.png" class="w-7 h-7" alt="Afnan Logo">
+                <span class="text-sm font-extrabold text-white">Afnan AI</span>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <button onclick="window.location.reload()" class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition" title="محادثة جديدة"><i class="fa-solid fa-plus text-gray-300 text-sm"></i></button>
+            <button class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition" title="مشاركة"><i class="fa-solid fa-share-nodes text-gray-300 text-sm"></i></button>
+            <button class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition" title="إضافة أشخاص"><i class="fa-solid fa-user-plus text-gray-300 text-sm"></i></button>
+        </div>
+    </header>
+
+    <main class="flex-1 w-full h-full relative overflow-hidden">
+        <div id="galleryView" class="absolute inset-0 overflow-y-auto hide-scrollbar pt-32 pb-40 px-6 text-center">
+            <div class="max-w-2xl mx-auto">
+                <h1 class="text-3xl font-black mb-4 text-white">مرحباً بك في أفنان</h1>
+                <p class="text-sm text-gray-500 mb-12">الوكيل الذكي المتكامل لتنفيذ مهامك وربط أدواتك</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="connector-item !p-6" onclick="quickAction('توليد صورة فنية')">
+                        <i class="fa-solid fa-palette text-pink-500 text-2xl mb-2"></i>
+                        <p class="text-sm font-bold">إنشاء الصور</p>
+                    </div>
+                    <div class="connector-item !p-6" onclick="quickAction('بحث عميق في الويب')">
+                        <i class="fa-solid fa-magnifying-glass-chart text-cyan-400 text-2xl mb-2"></i>
+                        <p class="text-sm font-bold">البحث العميق</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="chatView" class="absolute inset-0 overflow-y-auto hide-scrollbar pt-32 pb-48 px-6 opacity-0 pointer-events-none">
+            <div id="chatContainer" class="flex flex-col gap-10 max-w-3xl mx-auto"></div>
+        </div>
+    </main>
+
+    <div class="fixed bottom-0 left-0 right-0 p-6 z-40">
+        <div class="max-w-3xl mx-auto">
+            <div id="attachmentPreview" class="animate-msg">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-file-lines text-indigo-400"></i>
+                        <span id="fileName" class="text-xs text-gray-300">file_name.pdf</span>
+                    </div>
+                    <button onclick="clearAttachment()" class="text-gray-500 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+            <div class="glass-input-container rounded-[28px] p-3 flex items-end gap-3">
+                <button id="toolsBtn" onclick="openSheet('toolsSheet')" class="w-11 h-11 rounded-2xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition flex-shrink-0 border border-white/5">
+                    <i class="fa-solid fa-plus text-gray-400 text-lg"></i>
+                </button>
+                <textarea id="userInput" rows="1" placeholder="اسأل أفنان..." class="flex-1 bg-transparent border-none focus:ring-0 text-sm py-3 px-1 resize-none max-h-40 hide-scrollbar text-white placeholder-gray-600" oninput="autoResize(this)"></textarea>
+                <button id="sendBtn" onclick="handleSend()" class="w-11 h-11 rounded-2xl bg-white text-black flex items-center justify-center hover:scale-105 transition flex-shrink-0 shadow-2xl">
+                    <i class="fa-solid fa-arrow-up-long"></i>
+                </button>
+            </div>
+            
+            <div class="flex justify-center gap-4 mt-4 opacity-40 text-[10px]">
+                <a href="privacy.html" class="hover:underline">سياسة الخصوصية</a>
+                <a href="privacy.html" class="hover:underline">اتفاقية المستخدم</a>
+                <a href="index.html" class="hover:underline">من نحن</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="toolsSheet" class="bottom-sheet">
+        <div class="sheet-handle"></div>
+        <div class="p-6">
+            <div class="flex justify-around mb-8 pb-6 border-b border-white/5">
+                <div class="flex flex-col items-center gap-2" onclick="triggerFile('imageInput')">
+                    <div class="tool-row-icon"><i class="fa-solid fa-image text-blue-400"></i></div>
+                    <span class="text-[10px] text-gray-400">صور</span>
+                </div>
+                <div class="flex flex-col items-center gap-2" onclick="triggerFile('fileInput')">
+                    <div class="tool-row-icon"><i class="fa-solid fa-file-arrow-up text-green-400"></i></div>
+                    <span class="text-[10px] text-gray-400">ملفات</span>
+                </div>
+                <div class="flex flex-col items-center gap-2">
+                    <div class="tool-row-icon"><i class="fa-solid fa-camera text-red-400"></i></div>
+                    <span class="text-[10px] text-gray-400">كاميرا</span>
+                </div>
+            </div>
+            <p class="text-xs font-bold text-gray-500 mb-4 px-2 uppercase tracking-widest">اختر الوضع</p>
+            <div class="space-y-3">
+                <div class="connector-item" onclick="setMode('flash')">
+                    <div class="flex items-center gap-4">
+                        <img src="https://i.postimg.cc/26TTPbxH/grok-image-x6em5fj-edit-96291120058942.png" class="w-8 h-8 rounded-lg">
+                        <div><p class="text-sm font-bold">Afnan 1.2 Flash</p><p class="text-[10px] text-gray-500">300 رصيد مجاني - برمجة سريعة</p></div>
+                    </div>
+                    <i id="check-flash" class="fa-solid fa-check text-indigo-500 opacity-0"></i>
+                </div>
+                <div class="connector-item" onclick="setMode('max')">
+                    <div class="flex items-center gap-4">
+                        <img src="https://i.postimg.cc/26TTPbxH/grok-image-x6em5fj-edit-96291120058942.png" class="w-8 h-8 rounded-lg brightness-150">
+                        <div><p class="text-sm font-bold">Afnan 1.2 Max</p><p class="text-[10px] text-gray-500">8000 رصيد ($10) - برمجة متقدمة</p></div>
+                    </div>
+                    <i id="check-max" class="fa-solid fa-check text-indigo-500 opacity-0"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="connectorsSheet" class="bottom-sheet">
+        <div class="sheet-handle"></div>
+        <div class="p-6">
+            <h3 class="text-lg font-bold mb-6 px-2">الموصلات والإدارة</h3>
+            <div class="space-y-2">
+                <div class="connector-item" onclick="openLinkSheet('GitHub')">
+                    <div class="flex items-center gap-4"><i class="fa-brands fa-github text-xl w-8 text-center"></i><span class="text-sm font-medium">جيت هب</span></div>
+                    <span class="text-[10px] bg-white/5 px-2 py-1 rounded-lg text-gray-400">اتصال</span>
+                </div>
+                <div class="connector-item" onclick="openLinkSheet('Google Drive')">
+                    <div class="flex items-center gap-4"><i class="fa-brands fa-google-drive text-xl w-8 text-center text-blue-400"></i><span class="text-sm font-medium">Google Drive</span></div>
+                    <span class="text-[10px] bg-white/5 px-2 py-1 rounded-lg text-gray-400">اتصال</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="linkSheet" class="bottom-sheet">
+        <div class="sheet-handle"></div>
+        <div class="p-8 text-center">
+            <div id="linkIcon" class="w-20 h-20 rounded-3xl bg-white/5 flex items-center justify-center mx-auto mb-6 text-3xl border border-white/10"></div>
+            <h3 id="linkTitle" class="text-xl font-bold mb-2">ربط GitHub</h3>
+            <p class="text-sm text-gray-500 mb-8">اسمح لأفنان بالوصول لمستودعاتك لتنفيذ المهام البرمجية نيابة عنك.</p>
+            <button onclick="confirmLink()" class="w-full py-4 rounded-2xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition shadow-xl shadow-indigo-600/20">ربط الآن</button>
+            <button onclick="closeSheet('linkSheet')" class="w-full py-4 mt-2 text-gray-500 text-sm">إلغاء</button>
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" class="hidden" onchange="handleFile(this)">
+    <input type="file" id="imageInput" class="hidden" accept="image/*" onchange="handleFile(this)">
+
+    <script type="module">
+        import { auth } from "./firebase-config.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        let currentUser = null;
+        let credits = 300;
+        let currentMode = 'flash';
+        let selectedFile = null;
+        const aiLogo = "https://i.postimg.cc/26TTPbxH/grok-image-x6em5fj-edit-96291120058942.png";
+        const API_URL = "/api/chat"; 
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) window.location.replace('login.html');
+            else { currentUser = user; updateUserProfile(); loadHistory(); setMode('flash'); }
+        });
+
+        function updateUserProfile() {
+            if (!currentUser) return;
+            document.getElementById('userName').innerText = currentUser.displayName || currentUser.email.split('@')[0];
+            document.getElementById('userAvatar').src = currentUser.photoURL || `https://ui-avatars.com/api/?name=${currentUser.email}&background=random`;
+            credits = parseInt(localStorage.getItem(`credits_${currentUser.uid}`)) || 300;
+            document.getElementById('userCredits').innerText = `${credits} Credit`;
+        }
+
+        window.openSheet = (id) => { document.getElementById(id).classList.add('active'); document.getElementById('overlay').classList.remove('hidden'); };
+        window.closeSheet = (id) => { document.getElementById(id).classList.remove('active'); if(!document.querySelector('.bottom-sheet.active')) document.getElementById('overlay').classList.add('hidden'); };
+        window.closeAll = () => { document.querySelectorAll('.bottom-sheet').forEach(s => s.classList.remove('active')); document.getElementById('sidebar').classList.add('translate-x-full'); document.getElementById('overlay').classList.add('hidden'); };
+        window.toggleSidebar = () => {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            if(!sidebar.classList.contains('translate-x-full')) { sidebar.classList.add('translate-x-full'); overlay.classList.add('hidden'); }
+            else { sidebar.classList.remove('translate-x-full'); overlay.classList.remove('hidden'); }
+        };
+
+        window.setMode = (mode) => {
+            if (mode === 'max' && credits < 1) {
+                alert('رصيدك غير كافٍ لاستخدام Afnan 1.2 Max. يرجى الترقية.');
+                return;
+            }
+            currentMode = mode;
+            document.querySelectorAll('[id^="check-"]').forEach(i => i.classList.add('opacity-0'));
+            document.getElementById(`check-${mode}`).classList.remove('opacity-0');
+            const toolsBtn = document.getElementById('toolsBtn');
+            toolsBtn.innerHTML = `<img src="${aiLogo}" class="w-7 h-7 ${mode === 'flash' ? '' : 'brightness-150'}">`;
+            closeSheet('toolsSheet');
+        };
+
+        window.openLinkSheet = (name) => {
+            closeSheet('connectorsSheet');
+            document.getElementById('linkTitle').innerText = `ربط ${name}`;
+            const icon = document.getElementById('linkIcon');
+            if(name === 'GitHub') icon.innerHTML = '<i class="fa-brands fa-github"></i>';
+            else icon.innerHTML = '<i class="fa-brands fa-google-drive text-blue-400"></i>';
+            setTimeout(() => openSheet('linkSheet'), 300);
+        };
+
+        window.confirmLink = () => { alert('تم الربط بنجاح!'); closeSheet('linkSheet'); };
+        window.triggerFile = (id) => { closeSheet('toolsSheet'); document.getElementById(id).click(); };
+        window.handleFile = (input) => { 
+            if (input.files && input.files[0]) { 
+                selectedFile = input.files[0];
+                document.getElementById('fileName').innerText = selectedFile.name; 
+                document.getElementById('attachmentPreview').style.display = 'block'; 
+            } 
+        };
+        window.clearAttachment = () => { 
+            document.getElementById('attachmentPreview').style.display = 'none'; 
+            document.getElementById('fileInput').value = ''; 
+            document.getElementById('imageInput').value = ''; 
+            selectedFile = null;
+        };
+
+        window.handleSend = async (customText = null) => {
+            const input = document.getElementById('userInput');
+            const text = customText || input.value.trim();
+            if (!text && !selectedFile) return;
+
+            // UI Updates
+            document.getElementById('galleryView').style.display = 'none';
+            document.getElementById('chatView').style.opacity = '1';
+            document.getElementById('chatView').style.pointerEvents = 'auto';
+            const container = document.getElementById('chatContainer');
+            
+            const userDiv = document.createElement('div');
+            userDiv.className = 'flex gap-4 items-start flex-row-reverse animate-msg';
+            userDiv.innerHTML = `<div class="w-9 h-9 rounded-xl bg-white/5 flex-shrink-0 flex items-center justify-center border border-white/5"><i class="fa-solid fa-user text-gray-500 text-xs"></i></div><div class="chat-bubble-user text-right"><p class="text-sm leading-relaxed">${text || 'ملف مرفق'}</p></div>`;
+            container.appendChild(userDiv);
+
+            // Add Loading Bubble
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'flex gap-5 items-start animate-msg';
+            loadingDiv.innerHTML = `<img src="${aiLogo}" class="ai-logo-img flex-shrink-0"><div class="chat-bubble-ai flex gap-1 p-4"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+            container.appendChild(loadingDiv);
+            document.getElementById('chatView').scrollTo({ top: document.getElementById('chatView').scrollHeight, behavior: 'smooth' });
+
+            let bodyData;
+            let headers = {};
+
+            if (selectedFile) {
+                const formData = new FormData();
+                formData.append('message', text);
+                formData.append('mode', currentMode);
+                formData.append('file', selectedFile);
+                bodyData = formData;
+            } else {
+                bodyData = JSON.stringify({ message: text, mode: currentMode });
+                headers['Content-Type'] = 'application/json';
+            }
+
+            if (!customText) input.value = '';
+            input.style.height = 'auto';
+            clearAttachment();
+            saveToHistory(text || "ملف مرفق");
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: headers,
+                    body: bodyData
+                });
+                const data = await response.json();
+                
+                loadingDiv.innerHTML = `<img src="${aiLogo}" class="ai-logo-img flex-shrink-0"><div class="chat-bubble-ai"><p class="text-sm leading-7 text-gray-200">${data.output || 'لم أستطع معالجة الطلب.'}</p></div>`;
+                
+                // Handle Credits Consumption
+                let consumption = 0;
+                if (currentMode === 'flash') {
+                    // Flash consumes based on tokens (simulated)
+                    consumption = Math.floor(text.length / 50) + 1;
+                } else if (currentMode === 'max') {
+                    // Max consumes double Flash
+                    consumption = (Math.floor(text.length / 50) + 1) * 2;
+                }
+                
+                credits = Math.max(0, credits - consumption);
+                localStorage.setItem(`credits_${currentUser.uid}`, credits);
+                updateUserProfile();
+            } catch (error) {
+                loadingDiv.innerHTML = `<img src="${aiLogo}" class="ai-logo-img flex-shrink-0"><div class="chat-bubble-ai"><p class="text-sm leading-7 text-red-400">خطأ في الاتصال بالخادم.</p></div>`;
+            }
+            document.getElementById('chatView').scrollTo({ top: document.getElementById('chatView').scrollHeight, behavior: 'smooth' });
+        };
+
+        function saveToHistory(text) {
+            if (!currentUser) return;
+            let history = JSON.parse(localStorage.getItem(`history_${currentUser.uid}`)) || [];
+            history.unshift({ text, time: new Date().toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) });
+            if (history.length > 15) history.pop();
+            localStorage.setItem(`history_${currentUser.uid}`, JSON.stringify(history));
+            loadHistory();
+        }
+
+        function loadHistory() {
+            if (!currentUser) return;
+            const history = JSON.parse(localStorage.getItem(`history_${currentUser.uid}`)) || [];
+            const container = document.getElementById('chatHistory');
+            container.innerHTML = '<div class="text-[10px] font-bold text-gray-600 px-2 uppercase tracking-widest mb-4">النشاط الأخير</div>';
+            history.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'flex gap-3 p-3 rounded-xl hover:bg-white/5 cursor-pointer transition';
+                div.innerHTML = `<i class="fa-regular fa-message text-gray-600 mt-1"></i><p class="text-[11px] text-gray-300 truncate">${item.text}</p>`;
+                container.appendChild(div);
+            });
+        }
+
+        window.autoResize = (el) => { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; };
+        window.quickAction = (text) => handleSend(text);
+    </script>
+</body>
+</html>

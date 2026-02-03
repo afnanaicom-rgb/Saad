@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Afnan AI - Enterprise</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;600&family=IBM+Plex+Sans+Arabic:wght@100;300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #030303;
+            --accent-color: #ffffff;
+            --glass: rgba(255, 255, 255, 0.04);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--accent-color);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .glow {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100vw;
+            height: 40vh;
+            background: radial-gradient(circle at 50% -20%, rgba(255,255,255,0.06) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Dropdown Nav */
+        #topNav {
+            position: fixed;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(3, 3, 3, 0.98);
+            backdrop-filter: blur(40px);
+            z-index: 2000;
+            transition: top 0.7s cubic-bezier(0.85, 0, 0.15, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #topNav.active { top: 0; }
+
+        .nav-content a {
+            display: block;
+            font-size: clamp(30px, 5vw, 45px);
+            font-weight: 200;
+            color: #444;
+            margin: 15px 0;
+            text-decoration: none;
+            transition: 0.4s;
+        }
+
+        .nav-content a:hover { color: #fff; transform: scale(1.05); }
+
+        /* Header */
+        header {
+            padding: 30px 6%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-img {
+            width: 42px;
+            height: 42px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .login-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 400;
+            transition: 0.3s;
+            text-decoration: none;
+        }
+
+        .login-btn:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        .menu-icon {
+            cursor: pointer;
+            width: 28px;
+            height: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .menu-icon span {
+            height: 2px;
+            width: 100%;
+            background: #fff;
+            transition: 0.3s;
+        }
+
+        /* Hero */
+        .hero {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20px;
+            z-index: 10;
+        }
+
+        .brand-name {
+            font-size: clamp(45px, 10vw, 100px);
+            font-weight: 300;
+            letter-spacing: -2px;
+            margin-bottom: 40px;
+            background: linear-gradient(to bottom, #fff 50%, #666 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Chat Input Style */
+        .input-container {
+            width: 100%;
+            max-width: 780px;
+            position: relative;
+            background: #171717;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 26px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            transition: 0.3s;
+            flex-direction: row-reverse;
+        }
+
+        .input-container:focus-within {
+            border-color: rgba(255,255,255,0.2);
+            background: #1d1d1d;
+        }
+
+        .input-container input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 12px 15px;
+            color: #ececec;
+            outline: none;
+            font-size: 16px;
+            text-align: right;
+        }
+
+        .send-button {
+            width: 36px;
+            height: 36px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+            flex-shrink: 0;
+            margin-right: 5px;
+        }
+
+        .send-button:hover {
+            opacity: 0.8;
+            transform: scale(0.95);
+        }
+
+        .send-button svg {
+            color: #000;
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Image Gallery */
+        .image-gallery {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            width: 100%;
+            max-width: 780px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            scrollbar-width: none;
+        }
+        .image-gallery::-webkit-scrollbar { display: none; }
+        
+        .gallery-item {
+            min-width: 150px;
+            height: 100px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255,255,255,0.3);
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Model Row */
+        .model-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .model-pill {
+            font-size: 11px;
+            color: #666;
+            padding: 5px 12px;
+            border-radius: 100px;
+            border: 1px solid rgba(255,255,255,0.05);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .model-pill.active { color: #fff; border-color: #fff; }
+
+        /* Footer Info */
+        .footer-info {
+            width: 100%;
+            max-width: 1000px;
+            margin: 60px auto 30px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            padding: 40px 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .f-title { font-size: 10px; color: #444; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; }
+        .f-link { font-size: 14px; color: #888; text-decoration: none; display: block; margin-bottom: 8px; }
+        .f-link:hover { color: #fff; }
+
+        .verified-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding-bottom: 40px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 12px;
+            letter-spacing: 2px;
+            color: #444;
+        }
+
+        .check-icon {
+            width: 14px;
+            height: 14px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-size: 9px;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="glow"></div>
+
+    <!-- Navigation Overlay -->
+    <div id="topNav">
+        <div class="absolute top-10 right-[6%] cursor-pointer text-2xl" onclick="toggleNav()">✕</div>
+        <div class="nav-content">
+            <a href="index.html" target="_blank">الرئيسية</a>
+            <a href="afnan.html" target="_blank">استوديو أفنان (مهم)</a>
+            <a href="pro.html" target="_blank">الاشتراكات PRO</a>
+            <a href="privacy.html" target="_blank">سياسة الخصوصية</a>
+            <a href="login.html" target="_blank">تسجيل الدخول</a>
+        </div>
+    </div>
+
+    <header>
+        <div class="logo-container">
+            <img src="https://i.postimg.cc/26TTPbxH/grok-image-x6em5fj-edit-96291120058942.png" alt="Afnan Logo" class="logo-img">
+            <span class="font-semibold tracking-tighter text-lg">AFNAN AI</span>
+        </div>
+        
+        <div class="header-actions">
+            <a href="login.html" target="_blank" class="login-btn">Login</a>
+            <div class="menu-icon" onclick="toggleNav()">
+                <span></span>
+                <span style="width: 60%; align-self: flex-end;"></span>
+            </div>
+        </div>
+    </header>
+
+    <main class="hero">
+        <h1 class="brand-name">Afnan AI</h1>
+
+        <div class="chat-area w-full max-w-[780px]">
+            <div class="input-container">
+                <div class="send-button" onclick="handleSend()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="19" x2="12" y2="5"></line>
+                        <polyline points="5 12 12 5 19 12"></polyline>
+                    </svg>
+                </div>
+                <input type="text" placeholder="كيف يمكن لأفنان مساعدتك اليوم؟">
+            </div>
+
+            <!-- Image Gallery Added Here -->
+            <div class="image-gallery">
+                <div class="gallery-item"><img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80" alt="AI Art 1"></div>
+                <div class="gallery-item"><img src="https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=400&q=80" alt="AI Art 2"></div>
+                <div class="gallery-item"><img src="https://i.postimg.cc/VkkF71gv/grok-image-x6em5fj-edit-96291120058942.png" alt="AI Art 3"></div>
+                <div class="gallery-item"><img src="https://images.unsplash.com/photo-1675271591211-126ad94e495d?w=400&q=80" alt="AI Art 4"></div>
+            </div>
+
+            <div class="model-row">
+                <div class="model-pill active">Afnan 1.2 Flshe</div>
+                <div class="model-pill">Afnan 1.2 Max</div>
+            </div>
+        </div>
+
+        <div class="footer-info">
+            <div class="f-col">
+                <div class="f-title">المقر الرئيسي</div>
+                <span class="f-link">المملكة العربية السعودية</span>
+                <span class="f-link">المدينة المنورة، حي السلام</span>
+                <span class="f-link">شارع الملك عبد العزيز</span>
+            </div>
+            <div class="f-col">
+                <div class="f-title">تواصل معنا</div>
+                <a href="mailto:afnan@afnanai.com" class="f-link">afnan@afnanai.com</a>
+                <span class="f-link">الدعم التقني المباشر</span>
+            </div>
+            <div class="f-col">
+                <div class="f-title">قانوني</div>
+                <a href="privacy.html" target="_blank" class="f-link">سياسة الخصوصية</a>
+                <a href="privacy.html" target="_blank" class="f-link">اتفاقية المستخدم</a>
+            </div>
+            <div class="f-col">
+                <div class="f-title">عن الشركة</div>
+                <a href="pro.html" target="_blank" class="f-link">الاشتراكات PRO</a>
+                <a href="afnan.html" target="_blank" class="f-link">استوديو الصور</a>
+            </div>
+        </div>
+    </main>
+
+    <div class="verified-badge">
+        <span>AFNAN AI 2026</span>
+        <div class="check-icon">✓</div>
+    </div>
+
+    <script>
+        function toggleNav() {
+            document.getElementById('topNav').classList.toggle('active');
+        }
+
+        function handleSend() {
+            const input = document.querySelector('.input-container input');
+            if(input.value) {
+                input.value = '';
+                input.placeholder = 'جاري التفكير...';
+                setTimeout(() => {
+                    input.placeholder = 'كيف يمكن لأفنان مساعدتك اليوم؟';
+                }, 2000);
+            }
+        }
+
+        document.querySelectorAll('.model-pill').forEach(pill => {
+            pill.addEventListener('click', function() {
+                document.querySelectorAll('.model-pill').forEach(p => p.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

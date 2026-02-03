@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الاشتراكات PRO - Afnan AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+            background-color: #030303;
+            color: #ffffff;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 60px 20px;
+        }
+        .header-section {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        h1 {
+            font-size: clamp(32px, 5vw, 48px);
+            font-weight: 600;
+            background: linear-gradient(to bottom, #fff 50%, #FFD700 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+        .pricing-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            width: 100%;
+            max-width: 1000px;
+        }
+        .plan-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .plan-card.featured {
+            border-color: #FFD700;
+            background: rgba(255, 215, 0, 0.05);
+        }
+        .plan-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        .plan-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .plan-price {
+            font-size: 40px;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+        .plan-price span {
+            font-size: 16px;
+            font-weight: 400;
+            color: #888;
+        }
+        .features-list {
+            text-align: right;
+            margin-bottom: 35px;
+            list-style: none;
+            padding: 0;
+        }
+        .features-list li {
+            margin-bottom: 12px;
+            color: #ccc;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .features-list li i {
+            color: #FFD700;
+            font-size: 14px;
+        }
+        .subscribe-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            background: #fff;
+            color: #000;
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .subscribe-btn:hover {
+            opacity: 0.9;
+            transform: scale(0.98);
+        }
+        .featured .subscribe-btn {
+            background: #FFD700;
+        }
+        .back-btn {
+            margin-top: 60px;
+            padding: 10px 25px;
+            border-radius: 100px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .back-btn:hover {
+            background: #fff;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-section">
+        <h1>اختر خطتك في Afnan PRO</h1>
+        <p class="text-gray-400">أطلق العنان لقوة الذكاء الاصطناعي الكاملة</p>
+    </div>
+
+    <div class="pricing-container">
+        <!-- Basic Plan -->
+        <div class="plan-card">
+            <div class="plan-name">الخطة المجانية</div>
+            <div class="plan-price">0 ريال <span>/ شهرياً</span></div>
+            <ul class="features-list">
+                <li><i class="fa-solid fa-check"></i> وصول محدود لنماذج Afnan</li>
+                <li><i class="fa-solid fa-check"></i> 10 صور يومياً</li>
+                <li><i class="fa-solid fa-check"></i> دعم فني عبر البريد</li>
+            </ul>
+            <a href="#" class="subscribe-btn">ابدأ الآن</a>
+        </div>
+
+        <!-- Pro Plan -->
+        <div class="plan-card featured">
+            <div class="absolute top-4 left-4 bg-yellow-500 text-black text-[10px] font-bold px-2 py-1 rounded">الأكثر طلباً</div>
+            <div class="plan-name">خطة PRO</div>
+            <div class="plan-price">49 ريال <span>/ شهرياً</span></div>
+            <ul class="features-list">
+                <li><i class="fa-solid fa-check"></i> وصول غير محدود لـ Afnan 1.2 Max</li>
+                <li><i class="fa-solid fa-check"></i> توليد صور غير محدود</li>
+                <li><i class="fa-solid fa-check"></i> أولوية في المعالجة</li>
+                <li><i class="fa-solid fa-check"></i> ميزات تحرير الصور المتقدمة</li>
+            </ul>
+            <a href="#" class="subscribe-btn">اشترك الآن</a>
+        </div>
+
+        <!-- Enterprise Plan -->
+        <div class="plan-card">
+            <div class="plan-name">المؤسسات</div>
+            <div class="plan-price">تواصل معنا</div>
+            <ul class="features-list">
+                <li><i class="fa-solid fa-check"></i> حلول مخصصة للشركات</li>
+                <li><i class="fa-solid fa-check"></i> واجهة برمجة تطبيقات API</li>
+                <li><i class="fa-solid fa-check"></i> مدير حساب مخصص</li>
+                <li><i class="fa-solid fa-check"></i> تدريب الفريق</li>
+            </ul>
+            <a href="mailto:afnan@afnanai.com" class="subscribe-btn">تواصل معنا</a>
+        </div>
+    </div>
+
+    <a href="afnan.html" class="back-btn">العودة للاستوديو</a>
+</body>
+</html>
