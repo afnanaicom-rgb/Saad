@@ -168,7 +168,7 @@
         let currentMode = 'flash';
         let isPro = false;
         const aiLogo = "https://i.postimg.cc/26TTPbxH/grok-image-x6em5fj-edit-96291120058942.png";
-        const API_URL = "/api/chat";
+        const API_URL = "/api/chat"; // تم التأكد من المسار النسبي ليعمل على Vercel
 
         onAuthStateChanged(auth, (user) => {
             if (!user) window.location.replace('login.html');
