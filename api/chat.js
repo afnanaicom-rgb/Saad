@@ -28,13 +28,13 @@ export default async function handler(req, res) {
         return res.status(403).json({ error: 'نموذج Max متاح فقط لمشتركي خطة Pro.' });
     }
 
-    // Configuration from server.js
-    const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "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";
+    // Configuration from User Input
+    const OPENROUTER_API_KEY = "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";
     const MODEL_NAME = "sourceful/riverflow-v2-pro";
 
     const systemMsg = `أنت أفنان 1.2، وكيل ذكاء اصطناعي متخصص حصرياً في البرمجة. 
     قدراتك تشمل:
-    1. التعامل مع GitHub: يمكنك تحليل الملفات، إنشاء ملفات جديدة، وتعديل الكود.
+    1. التعامل مع GitHub: يمكنك تحميل المستودعات، تحليل الملفات، إنشاء ملفات جديدة، وتعديل الكود.
     2. لغات البرمجة: خبير في كافة اللغات والأطر البرمجية.
     3. نظام الرصيد: أنت تعرف أن Flash يستهلك رصيداً عادياً بينما Max يستهلك الضعف.
     يجب أن تكون إجاباتك دقيقة وبرمجية بحتة.`;
@@ -49,23 +49,23 @@ export default async function handler(req, res) {
         headers: {
             "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
             "Content-Type": "application/json",
-            "HTTP-Referer": "https://afnan-ai.vercel.app", // Optional for OpenRouter
-            "X-Title": "Afnan AI" // Optional for OpenRouter
+            "HTTP-Referer": "https://afnan-ai.vercel.app", 
+            "X-Title": "Afnan AI" 
         },
-        timeout: 30000 // 30 seconds timeout
+        timeout: 40000 // 40 seconds timeout for larger models
     });
 
     if (response.data && response.data.choices && response.data.choices[0]) {
         res.status(200).json({ output: response.data.choices[0].message.content });
     } else {
-        throw new Error('Invalid response from OpenRouter');
+        throw new Error('Invalid response structure from OpenRouter');
     }
 
   } catch (error) {
     console.error('API Error:', error.response ? error.response.data : error.message);
     res.status(500).json({ 
         error: 'حدث خطأ في الخادم أثناء معالجة طلبك.',
-        details: error.message 
+        details: error.response ? JSON.stringify(error.response.data) : error.message 
     });
   }
 }
