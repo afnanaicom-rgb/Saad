@@ -1,16 +1,59 @@
 {
   "version": 2,
-  "cleanUrls": true,
-  "trailingSlash": false,
+  "framework": "nextjs",
+  "name": "afnan-ai",
+  "buildCommand": "pnpm build",
+  "devCommand": "pnpm dev",
+  "installCommand": "pnpm install",
+  "env": {
+    "NODE_ENV": "production",
+    "DATABASE_URL": "@database_url",
+    "JWT_SECRET": "@jwt_secret",
+    "VITE_APP_ID": "@vite_app_id",
+    "OAUTH_SERVER_URL": "@oauth_server_url",
+    "VITE_OAUTH_PORTAL_URL": "@vite_oauth_portal_url",
+    "OWNER_OPEN_ID": "@owner_open_id",
+    "OWNER_NAME": "@owner_name",
+    "BUILT_IN_FORGE_API_URL": "@built_in_forge_api_url",
+    "BUILT_IN_FORGE_API_KEY": "@built_in_forge_api_key",
+    "VITE_FRONTEND_FORGE_API_KEY": "@vite_frontend_forge_api_key",
+    "VITE_FRONTEND_FORGE_API_URL": "@vite_frontend_forge_api_url",
+    "OPENROUTER_API_KEY": "@openrouter_api_key",
+    "GEMINI_API_KEY": "@gemini_api_key",
+    "NEXT_PUBLIC_FIREBASE_API_KEY": "@next_public_firebase_api_key",
+    "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN": "@next_public_firebase_auth_domain",
+    "NEXT_PUBLIC_FIREBASE_PROJECT_ID": "@next_public_firebase_project_id",
+    "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET": "@next_public_firebase_storage_bucket",
+    "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "@next_public_firebase_messaging_sender_id",
+    "NEXT_PUBLIC_FIREBASE_APP_ID": "@next_public_firebase_app_id"
+  },
   "functions": {
-    "api/**/*.js": {
-      "maxDuration": 10
+    "app/api/**": {
+      "memory": 1024,
+      "maxDuration": 60
     }
   },
-  "rewrites": [
+  "headers": [
     {
-      "source": "/api/chat",
-      "destination": "/api/chat.js"
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
     }
   ]
 }
