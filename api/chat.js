@@ -1,23 +1,19 @@
 const OpenAI = require('openai');
 const admin = require('firebase-admin');
 
-// إعداد Firebase Admin مع معالجة الخطأ إذا لم تتوفر المفاتيح
+// إعداد Firebase Admin
 try {
   if (!admin.apps.length) {
     const serviceAccount = {
       projectId: "afnan-b5934",
       clientEmail: "firebase-adminsdk-m9s2f@afnan-b5934.iam.gserviceaccount.com",
-      // استخدام متغير البيئة للمفتاح الخاص، مع التأكد من معالجة الـ Newlines
       privateKey: process.env.FIREBASE_PRIVATE_KEY ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') : undefined
     };
 
-    // لا نقوم بتهيئة Firebase إذا لم يتوفر المفتاح الخاص لتجنب كسر الدالة بالكامل في Vercel
     if (serviceAccount.privateKey) {
       admin.initializeApp({
         credential: admin.credential.cert(serviceAccount)
       });
-    } else {
-      console.warn("FIREBASE_PRIVATE_KEY is missing. Long-term memory will be disabled.");
     }
   }
 } catch (e) {
@@ -37,57 +33,46 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
   res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
   try {
     const { message, userId, mode, image } = req.body;
     
-    if (!message && !image) {
-      return res.status(400).json({ error: 'يرجى إدخال نص الرسالة أو صورة.' });
-    }
-
     let history = [];
     let userRef = null;
 
-    // محاولة استرجاع الذاكرة فقط إذا كان Firebase مهيأ
     if (userId && admin.apps.length) {
       try {
         const db = admin.firestore();
         userRef = db.collection('chat_history').doc(userId);
         const doc = await userRef.get();
-        if (doc.exists) {
-          history = doc.data().messages || [];
-        }
-      } catch (dbError) {
-        console.error("Firestore Error:", dbError);
-        // نكمل بدون ذاكرة إذا فشل Firestore
-      }
+        if (doc.exists) history = doc.data().messages || [];
+      } catch (e) {}
     }
 
+    // تعزيز الهوية (System Prompt)
+    const systemPrompt = "أنت Afnan AI، وكيل ذكي متطور متخصص في البرمجة والحلول التقنية. تم تطويرك بواسطة شركة Afnan. لا تذكر أي معلومات عن شركات أخرى مثل Upstage أو OpenAI أو Google. إذا سُئلت عن مطورك، قل 'شركة Afnan'. لا تذكر حجم النموذج أو كونه مفتوح المصدر أو أي تفاصيل تقنية تخص النماذج الأصلية. أنت وكيل ذكي فائق القدرة.";
+
     const messages = [
-      { role: "system", content: "أنت Afnan AI، وكيل برمجة متطور متخصص في مساعدة المبرمجين وتخزين السياق. استخدم لغة عربية احترافية." },
+      { role: "system", content: systemPrompt },
       ...history.slice(-10)
     ];
 
     if (image) {
+      // التأكد من تنسيق الصورة بشكل صحيح لـ Upstage
+      const base64Data = image.includes(',') ? image.split(',')[1] : image;
       messages.push({
         role: "user",
         content: [
-          { type: "text", text: message || "ماذا يوجد في هذه الصورة؟" },
-          { type: "image_url", image_url: { url: image } }
+          { type: "text", text: message || "حلل هذه الصورة برمجياً." },
+          { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Data}` } }
         ]
       });
     } else {
       messages.push({ role: "user", content: message });
     }
 
-    // استدعاء Upstage
     const chatCompletion = await upstage.chat.completions.create({
       model: "solar-pro3",
       messages: messages,
@@ -96,29 +81,17 @@ module.exports = async (req, res) => {
 
     const responseText = chatCompletion.choices[0].message.content;
 
-    // تحديث الذاكرة في الخلفية (اختياري)
     if (userRef) {
-      try {
-        history.push({ role: "user", content: message || "[صورة]" });
-        history.push({ role: "assistant", content: responseText });
-        if (history.length > 50) history = history.slice(-50);
-        await userRef.set({ 
-          messages: history, 
-          lastUpdated: admin.firestore.FieldValue.serverTimestamp() 
-        });
-      } catch (saveError) {
-        console.error("Save History Error:", saveError);
-      }
+      history.push({ role: "user", content: message || "[صورة]" });
+      history.push({ role: "assistant", content: responseText });
+      if (history.length > 50) history = history.slice(-50);
+      await userRef.set({ messages: history, lastUpdated: admin.firestore.FieldValue.serverTimestamp() }).catch(()=>{});
     }
 
     return res.status(200).json({ output: responseText });
 
   } catch (error) {
     console.error('[API Error]:', error);
-    // نضمن دائماً إرجاع JSON حتى في حالة الخطأ
-    return res.status(500).json({ 
-      error: 'حدث خطأ في الخادم أثناء معالجة طلبك.',
-      details: error.message 
-    });
+    return res.status(200).json({ output: "عذراً، واجهت مشكلة في معالجة طلبك. يرجى المحاولة مرة أخرى." });
   }
 };

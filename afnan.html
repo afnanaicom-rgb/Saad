@@ -13,10 +13,10 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        .glass-header { background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(25px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
-        .glass-input-container { background: rgba(15, 15, 15, 0.8); backdrop-filter: blur(40px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glass-header { background: rgba(0, 0, 0, 0.8); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .glass-input-container { background: #0f0f0f; border: 1px solid rgba(255, 255, 255, 0.08); }
         
-        #sidebar { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); background: #050505; border-left: 1px solid rgba(255, 255, 255, 0.05); }
+        #sidebar { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); background: #050505; border-left: 1px solid rgba(255, 255, 255, 0.05); backdrop-filter: none; }
         .chat-bubble-user { background: #151515; border-radius: 20px 20px 4px 20px; padding: 14px 18px; max-width: 85%; align-self: flex-start; border: 1px solid rgba(255,255,255,0.05); }
         .chat-bubble-ai { background: transparent; padding: 12px 0; max-width: 95%; align-self: flex-end; width: 100%; }
         
@@ -33,11 +33,39 @@
         
         #imagePreviewContainer { display: none; padding: 10px; border-top: 1px solid rgba(255,255,255,0.05); }
         .preview-img { width: 60px; height: 60px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
+
+        /* Canvas Styles */
+        #canvasOverlay { position: fixed; inset: 0; background: #000; z-index: 1000; display: none; flex-direction: column; }
+        .canvas-header { padding: 15px 20px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
+        .canvas-body { flex: 1; display: flex; overflow: hidden; }
+        .file-explorer { width: 250px; border-left: 1px solid #222; padding: 20px; overflow-y: auto; }
+        .code-viewer { flex: 1; padding: 20px; background: #0a0a0a; overflow-y: auto; font-family: monospace; white-space: pre-wrap; color: #00ff00; }
+        .file-item { padding: 8px 12px; border-radius: 8px; cursor: pointer; margin-bottom: 5px; font-size: 13px; }
+        .file-item:hover { background: #1a1a1a; }
+        .file-item.active { background: #222; border: 1px solid #333; }
     </style>
 </head>
 <body class="flex flex-col h-screen relative">
 
     <div id="overlay" onclick="closeAll()" class="hidden fixed inset-0 z-[90] bg-black/80 backdrop-blur-md transition-opacity duration-300"></div>
+
+    <!-- Canvas Overlay -->
+    <div id="canvasOverlay">
+        <div class="canvas-header">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-code text-indigo-500"></i>
+                <span class="font-bold">Afnan Canvas</span>
+            </div>
+            <button onclick="closeCanvas()" class="w-10 h-10 rounded-full hover:bg-white/10 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="canvas-body">
+            <div class="code-viewer" id="codeContent">// اختر ملفاً لعرض الكود</div>
+            <div class="file-explorer" id="fileList">
+                <p class="text-xs text-gray-500 mb-4 uppercase">الملفات المنشأة</p>
+                <!-- الملفات ستظهر هنا -->
+            </div>
+        </div>
+    </div>
 
     <!-- Sidebar -->
     <aside id="sidebar" class="fixed top-0 right-0 h-full w-[300px] z-50 flex flex-col transform translate-x-full">
@@ -51,19 +79,7 @@
                 <input type="text" placeholder="بحث في المحادثات..." class="w-full bg-white/5 border border-white/10 rounded-xl py-2 pr-9 pl-3 text-xs text-white focus:outline-none focus:border-white/20">
             </div>
         </div>
-
         <div class="flex-1 overflow-y-auto px-4 space-y-2 hide-scrollbar" id="chatHistory"></div>
-
-        <div class="px-4 mb-4">
-            <a href="pro.html" class="block p-4 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-700 hover:opacity-90 transition shadow-lg shadow-indigo-500/20">
-                <div class="flex items-center justify-between mb-1">
-                    <span class="text-xs font-bold text-white">الترقية لـ PRO</span>
-                    <i class="fa-solid fa-crown text-[10px] text-yellow-300"></i>
-                </div>
-                <p class="text-[10px] text-indigo-100">افتح نموذج Max واحصل على 8000 رصيد</p>
-            </a>
-        </div>
-
         <div class="p-4 border-t border-white/5 bg-[#080808]">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -74,9 +90,7 @@
                         <span id="userCredits" class="text-[10px] text-yellow-500 font-medium mt-0.5">0 Credit</span>
                     </div>
                 </div>
-                <a href="settings.html" class="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition text-gray-400">
-                    <i class="fa-solid fa-gear text-sm"></i>
-                </a>
+                <a href="settings.html" class="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition text-gray-400"><i class="fa-solid fa-gear text-sm"></i></a>
             </div>
         </div>
     </aside>
@@ -90,8 +104,8 @@
             </div>
         </div>
         <div class="flex items-center gap-2">
-            <button onclick="window.location.reload()" class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition" title="محادثة جديدة"><i class="fa-solid fa-plus text-gray-300 text-sm"></i></button>
-            <a href="pro.html" class="px-3 py-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[10px] font-bold hover:bg-yellow-500/20 transition">PRO</a>
+            <button onclick="window.location.reload()" class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition"><i class="fa-solid fa-plus text-gray-300 text-sm"></i></button>
+            <button onclick="openCanvas()" class="px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 text-[10px] font-bold">CANVAS</button>
         </div>
     </header>
 
@@ -99,16 +113,10 @@
         <div id="galleryView" class="absolute inset-0 overflow-y-auto hide-scrollbar pt-32 pb-40 px-6 text-center">
             <div class="max-w-2xl mx-auto">
                 <h1 class="text-3xl font-black mb-4 text-white">أفنان 1.2</h1>
-                <p class="text-sm text-gray-500 mb-12">وكيل البرمجة المتخصص بنماذج Solar Pro 3</p>
+                <p class="text-sm text-gray-500 mb-12">وكيل البرمجة المتخصص بنماذج Afnan</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="connector-item !p-6" onclick="quickAction('تحليل مستودع GitHub')">
-                        <i class="fa-brands fa-github text-white text-2xl mb-2"></i>
-                        <p class="text-sm font-bold">تحليل GitHub</p>
-                    </div>
-                    <div class="connector-item !p-6" onclick="quickAction('كتابة كود بايثون')">
-                        <i class="fa-solid fa-code text-indigo-400 text-2xl mb-2"></i>
-                        <p class="text-sm font-bold">كتابة كود</p>
-                    </div>
+                    <div class="connector-item !p-6" onclick="quickAction('تحليل مستودع GitHub')"><i class="fa-brands fa-github text-white text-2xl mb-2"></i><p class="text-sm font-bold">تحليل GitHub</p></div>
+                    <div class="connector-item !p-6" onclick="quickAction('كتابة كود بايثون')"><i class="fa-solid fa-code text-indigo-400 text-2xl mb-2"></i><p class="text-sm font-bold">كتابة كود</p></div>
                 </div>
             </div>
         </div>
@@ -127,10 +135,9 @@
                     </div>
                 </div>
                 <div class="flex items-end gap-3">
-                    <button onclick="triggerImageUpload()" class="w-11 h-11 rounded-2xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition flex-shrink-0 border border-white/5">
-                        <i class="fa-solid fa-image text-gray-400 text-lg"></i>
+                    <button onclick="openSheet('toolsSheet')" class="w-11 h-11 rounded-2xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition flex-shrink-0 border border-white/5">
+                        <i class="fa-solid fa-plus text-gray-400 text-lg"></i>
                     </button>
-                    <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="handleImageSelect(this)">
                     <textarea id="userInput" rows="1" placeholder="اسأل أفنان في البرمجة..." class="flex-1 bg-transparent border-none focus:ring-0 text-sm py-3 px-1 resize-none max-h-40 hide-scrollbar text-white placeholder-gray-600" oninput="autoResize(this)"></textarea>
                     <button onclick="handleSend()" class="w-11 h-11 rounded-2xl bg-white flex items-center justify-center hover:opacity-90 transition flex-shrink-0">
                         <i class="fa-solid fa-arrow-up text-black"></i>
@@ -144,25 +151,37 @@
     <div id="toolsSheet" class="bottom-sheet">
         <div class="sheet-handle"></div>
         <div class="p-6">
-            <p class="text-xs font-bold text-gray-500 mb-4 px-2 uppercase tracking-widest">اختر الوضع</p>
+            <p class="text-xs font-bold text-gray-500 mb-4 px-2 uppercase tracking-widest">الإضافات والنماذج</p>
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <div class="connector-item !flex-col !gap-2 !p-4" onclick="triggerImageUpload()">
+                    <i class="fa-solid fa-image text-xl text-indigo-500"></i>
+                    <span class="text-[11px] font-bold">إرسال صورة</span>
+                </div>
+                <div class="connector-item !flex-col !gap-2 !p-4" onclick="alert('قريباً: رفع الملفات')">
+                    <i class="fa-solid fa-file-code text-xl text-purple-500"></i>
+                    <span class="text-[11px] font-bold">رفع ملفات</span>
+                </div>
+            </div>
+            <p class="text-xs font-bold text-gray-500 mb-4 px-2 uppercase tracking-widest">اختر النموذج</p>
             <div class="space-y-3">
                 <div class="connector-item" onclick="setMode('flash')">
                     <div class="flex items-center gap-4">
                         <div class="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center"><i class="fa-solid fa-bolt text-indigo-500"></i></div>
-                        <div><p class="text-sm font-bold">Afnan 1.2 Flash</p><p class="text-[10px] text-gray-500">300 رصيد - سريع</p></div>
+                        <div><p class="text-sm font-bold">Afnan 1.2 Flash</p><p class="text-[10px] text-gray-500">سريع وذكي</p></div>
                     </div>
                     <i id="check-flash" class="fa-solid fa-check text-indigo-500 opacity-0"></i>
                 </div>
                 <div class="connector-item" onclick="setMode('max')">
                     <div class="flex items-center gap-4">
                         <div class="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center"><i class="fa-solid fa-crown text-yellow-500"></i></div>
-                        <div><p class="text-sm font-bold">Afnan 1.2 Max</p><p class="text-[10px] text-gray-500">8000 رصيد - للمحترفين فقط</p></div>
+                        <div><p class="text-sm font-bold">Afnan 1.2 Max</p><p class="text-[10px] text-gray-500">للمحترفين والاستدلال العميق</p></div>
                     </div>
                     <i id="check-max" class="fa-solid fa-check text-indigo-500 opacity-0"></i>
                 </div>
             </div>
         </div>
     </div>
+    <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="handleImageSelect(this)">
 
     <script type="module">
         import { auth } from "./firebase-config.js";
@@ -173,6 +192,7 @@
         let currentMode = 'flash';
         let isPro = false;
         let selectedImageBase64 = null;
+        let generatedFiles = {};
         const aiLogo = "https://i.postimg.cc/26TTPbxH/grok-image-x6em5fj-edit-96291120058942.png";
         const API_URL = "/api/chat";
 
@@ -191,8 +211,7 @@
             document.getElementById('userCredits').innerText = `${credits} Credit`;
         }
 
-        window.triggerImageUpload = () => document.getElementById('imageInput').click();
-        
+        window.triggerImageUpload = () => { closeSheet('toolsSheet'); document.getElementById('imageInput').click(); };
         window.handleImageSelect = (input) => {
             const file = input.files[0];
             if (file) {
@@ -205,12 +224,7 @@
                 reader.readAsDataURL(file);
             }
         };
-
-        window.clearImage = () => {
-            selectedImageBase64 = null;
-            document.getElementById('imageInput').value = '';
-            document.getElementById('imagePreviewContainer').style.display = 'none';
-        };
+        window.clearImage = () => { selectedImageBase64 = null; document.getElementById('imageInput').value = ''; document.getElementById('imagePreviewContainer').style.display = 'none'; };
 
         window.toggleSidebar = () => {
             const sidebar = document.getElementById('sidebar');
@@ -224,21 +238,50 @@
         window.closeAll = () => { document.querySelectorAll('.bottom-sheet').forEach(s => s.classList.remove('active')); document.getElementById('sidebar').classList.add('translate-x-full'); document.getElementById('overlay').classList.add('hidden'); };
 
         window.setMode = (mode) => {
-            if (mode === 'max' && !isPro) {
-                if(confirm('نموذج Max متاح فقط لمشتركي PRO. هل تريد الانتقال لصفحة الترقية؟')) window.location.href = 'pro.html';
-                return;
-            }
             currentMode = mode;
             document.querySelectorAll('[id^="check-"]').forEach(i => i.classList.add('opacity-0'));
             document.getElementById(`check-${mode}`).classList.remove('opacity-0');
             closeSheet('toolsSheet');
         };
 
+        window.openCanvas = () => { document.getElementById('canvasOverlay').style.display = 'flex'; };
+        window.closeCanvas = () => { document.getElementById('canvasOverlay').style.display = 'none'; };
+
+        function extractCode(text) {
+            const regex = /```(\w+)?\n([\s\S]*?)```/g;
+            let match;
+            let found = false;
+            while ((match = regex.exec(text)) !== null) {
+                const lang = match[1] || 'txt';
+                const code = match[2];
+                const fileName = `file_${Object.keys(generatedFiles).length + 1}.${lang}`;
+                generatedFiles[fileName] = code;
+                found = true;
+            }
+            if (found) updateFileList();
+        }
+
+        function updateFileList() {
+            const list = document.getElementById('fileList');
+            list.innerHTML = '<p class="text-xs text-gray-500 mb-4 uppercase">الملفات المنشأة</p>';
+            Object.keys(generatedFiles).forEach(name => {
+                const div = document.createElement('div');
+                div.className = 'file-item';
+                div.innerHTML = `<i class="fa-solid fa-file-code mr-2 text-indigo-400"></i> ${name}`;
+                div.onclick = () => {
+                    document.querySelectorAll('.file-item').forEach(i => i.classList.remove('active'));
+                    div.classList.add('active');
+                    document.getElementById('codeContent').textContent = generatedFiles[name];
+                };
+                list.appendChild(div);
+            });
+            openCanvas();
+        }
+
         window.handleSend = async (customText = null) => {
             const input = document.getElementById('userInput');
             const text = customText || input.value.trim();
             if (!text && !selectedImageBase64) return;
-            if (credits < 1) { alert('رصيدك نفد! يرجى الترقية.'); return; }
 
             document.getElementById('galleryView').style.display = 'none';
             document.getElementById('chatView').style.opacity = '1';
@@ -267,29 +310,13 @@
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        message: text, 
-                        userId: currentUser.uid, 
-                        mode: currentMode, 
-                        image: currentImage 
-                    })
+                    body: JSON.stringify({ message: text, userId: currentUser.uid, mode: currentMode, image: currentImage })
                 });
-                
-                // التحقق من نجاح الطلب قبل محاولة الـ Parsing
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'خطأ في الخادم');
-                }
-
                 const data = await response.json();
                 loadingDiv.innerHTML = `<img src="${aiLogo}" class="ai-logo-img flex-shrink-0"><div class="chat-bubble-ai"><p class="text-sm leading-7 text-gray-200">${data.output}</p></div>`;
-                
-                let consumption = currentMode === 'max' ? 2 : 1;
-                credits = Math.max(0, credits - consumption);
-                localStorage.setItem(`credits_${currentUser.uid}`, credits);
-                updateUserProfile();
+                extractCode(data.output);
             } catch (error) {
-                loadingDiv.innerHTML = `<img src="${aiLogo}" class="ai-logo-img flex-shrink-0"><div class="chat-bubble-ai"><p class="text-sm leading-7 text-red-400">${error.message || 'خطأ في الاتصال.'}</p></div>`;
+                loadingDiv.innerHTML = `<img src="${aiLogo}" class="ai-logo-img flex-shrink-0"><div class="chat-bubble-ai"><p class="text-sm leading-7 text-red-400">عذراً، حدث خطأ في الاتصال.</p></div>`;
             }
             document.getElementById('chatView').scrollTo({ top: document.getElementById('chatView').scrollHeight, behavior: 'smooth' });
         };
