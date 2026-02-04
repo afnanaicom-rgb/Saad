@@ -1,20 +1,29 @@
 const OpenAI = require('openai');
 const admin = require('firebase-admin');
 
-// إعداد Firebase Admin
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
+// إعداد Firebase Admin مع معالجة الخطأ إذا لم تتوفر المفاتيح
+try {
+  if (!admin.apps.length) {
+    const serviceAccount = {
       projectId: "afnan-b5934",
       clientEmail: "firebase-adminsdk-m9s2f@afnan-b5934.iam.gserviceaccount.com",
+      // استخدام متغير البيئة للمفتاح الخاص، مع التأكد من معالجة الـ Newlines
       privateKey: process.env.FIREBASE_PRIVATE_KEY ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') : undefined
-    })
-  });
+    };
+
+    // لا نقوم بتهيئة Firebase إذا لم يتوفر المفتاح الخاص لتجنب كسر الدالة بالكامل في Vercel
+    if (serviceAccount.privateKey) {
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount)
+      });
+    } else {
+      console.warn("FIREBASE_PRIVATE_KEY is missing. Long-term memory will be disabled.");
+    }
+  }
+} catch (e) {
+  console.error("Firebase Init Error:", e);
 }
 
-const db = admin.firestore();
-
-// إعداد Upstage OpenAI Client
 const upstageApiKey = "up_m4k2esocUAcDvDM9vptkIiTJNRK4E";
 const upstage = new OpenAI({
   apiKey: upstageApiKey,
@@ -36,28 +45,34 @@ module.exports = async (req, res) => {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const { message, userId, mode, image } = req.body;
-  
-  if (!message && !image) {
-    return res.status(400).json({ error: 'يرجى إدخال نص الرسالة أو صورة.' });
-  }
-
   try {
-    const userRef = userId ? db.collection('chat_history').doc(userId) : null;
-    let history = [];
+    const { message, userId, mode, image } = req.body;
+    
+    if (!message && !image) {
+      return res.status(400).json({ error: 'يرجى إدخال نص الرسالة أو صورة.' });
+    }
 
-    // 1. استرجاع الذاكرة طويلة المدى من Firebase
-    if (userRef) {
-      const doc = await userRef.get();
-      if (doc.exists) {
-        history = doc.data().messages || [];
+    let history = [];
+    let userRef = null;
+
+    // محاولة استرجاع الذاكرة فقط إذا كان Firebase مهيأ
+    if (userId && admin.apps.length) {
+      try {
+        const db = admin.firestore();
+        userRef = db.collection('chat_history').doc(userId);
+        const doc = await userRef.get();
+        if (doc.exists) {
+          history = doc.data().messages || [];
+        }
+      } catch (dbError) {
+        console.error("Firestore Error:", dbError);
+        // نكمل بدون ذاكرة إذا فشل Firestore
       }
     }
 
-    // 2. إعداد الرسائل مع السياق
     const messages = [
       { role: "system", content: "أنت Afnan AI، وكيل برمجة متطور متخصص في مساعدة المبرمجين وتخزين السياق. استخدم لغة عربية احترافية." },
-      ...history.slice(-10) // آخر 10 رسائل للسياق
+      ...history.slice(-10)
     ];
 
     if (image) {
@@ -72,35 +87,37 @@ module.exports = async (req, res) => {
       messages.push({ role: "user", content: message });
     }
 
-    // 3. استدعاء Upstage API مع تعطيل الـ Streaming لضمان الاستقرار
+    // استدعاء Upstage
     const chatCompletion = await upstage.chat.completions.create({
       model: "solar-pro3",
       messages: messages,
-      stream: false // تم التعطيل بناءً على التحليل لتجنب أخطاء الـ Parsing
+      stream: false
     });
 
     const responseText = chatCompletion.choices[0].message.content;
 
-    // 4. تحديث الذاكرة طويلة المدى في Firebase
+    // تحديث الذاكرة في الخلفية (اختياري)
     if (userRef) {
-      history.push({ role: "user", content: message || "[صورة]" });
-      history.push({ role: "assistant", content: responseText });
-      
-      if (history.length > 50) history = history.slice(-50);
-      
-      await userRef.set({ 
-        messages: history, 
-        lastUpdated: admin.firestore.FieldValue.serverTimestamp() 
-      });
+      try {
+        history.push({ role: "user", content: message || "[صورة]" });
+        history.push({ role: "assistant", content: responseText });
+        if (history.length > 50) history = history.slice(-50);
+        await userRef.set({ 
+          messages: history, 
+          lastUpdated: admin.firestore.FieldValue.serverTimestamp() 
+        });
+      } catch (saveError) {
+        console.error("Save History Error:", saveError);
+      }
     }
 
-    // إرجاع JSON نظيف للمتصفح
     return res.status(200).json({ output: responseText });
 
   } catch (error) {
     console.error('[API Error]:', error);
+    // نضمن دائماً إرجاع JSON حتى في حالة الخطأ
     return res.status(500).json({ 
-      error: 'حدث خطأ أثناء معالجة طلبك.',
+      error: 'حدث خطأ في الخادم أثناء معالجة طلبك.',
       details: error.message 
     });
   }
