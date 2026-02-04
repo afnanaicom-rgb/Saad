@@ -30,6 +30,9 @@
         .bottom-sheet { position: fixed; bottom: 0; left: 0; right: 0; background: #0a0a0a; border-top: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px 24px 0 0; z-index: 100; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); max-height: 85vh; overflow-y: auto; }
         .bottom-sheet.active { transform: translateY(0); }
         .sheet-handle { width: 40px; height: 4px; background: rgba(255, 255, 255, 0.2); border-radius: 2px; margin: 12px auto; }
+        
+        #imagePreviewContainer { display: none; padding: 10px; border-top: 1px solid rgba(255,255,255,0.05); }
+        .preview-img { width: 60px; height: 60px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
     </style>
 </head>
 <body class="flex flex-col h-screen relative">
@@ -38,7 +41,6 @@
 
     <!-- Sidebar -->
     <aside id="sidebar" class="fixed top-0 right-0 h-full w-[300px] z-50 flex flex-col transform translate-x-full">
-        <!-- Sidebar Header with Search -->
         <div class="p-6 flex flex-col gap-4">
             <div class="flex justify-between items-center">
                 <h2 class="font-bold text-lg text-white">المكتبة</h2>
@@ -50,12 +52,8 @@
             </div>
         </div>
 
-        <!-- Chat History -->
-        <div class="flex-1 overflow-y-auto px-4 space-y-2 hide-scrollbar" id="chatHistory">
-            <!-- المحادثات السابقة ستظهر هنا -->
-        </div>
+        <div class="flex-1 overflow-y-auto px-4 space-y-2 hide-scrollbar" id="chatHistory"></div>
 
-        <!-- Upgrade Box -->
         <div class="px-4 mb-4">
             <a href="pro.html" class="block p-4 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-700 hover:opacity-90 transition shadow-lg shadow-indigo-500/20">
                 <div class="flex items-center justify-between mb-1">
@@ -66,7 +64,6 @@
             </a>
         </div>
 
-        <!-- User Profile & Settings -->
         <div class="p-4 border-t border-white/5 bg-[#080808]">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -92,7 +89,6 @@
                 <span class="text-sm font-extrabold text-white">Afnan AI</span>
             </div>
         </div>
-
         <div class="flex items-center gap-2">
             <button onclick="window.location.reload()" class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition" title="محادثة جديدة"><i class="fa-solid fa-plus text-gray-300 text-sm"></i></button>
             <a href="pro.html" class="px-3 py-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[10px] font-bold hover:bg-yellow-500/20 transition">PRO</a>
@@ -103,7 +99,7 @@
         <div id="galleryView" class="absolute inset-0 overflow-y-auto hide-scrollbar pt-32 pb-40 px-6 text-center">
             <div class="max-w-2xl mx-auto">
                 <h1 class="text-3xl font-black mb-4 text-white">أفنان 1.2</h1>
-                <p class="text-sm text-gray-500 mb-12">وكيل البرمجة المتخصص بنماذج Riverflow</p>
+                <p class="text-sm text-gray-500 mb-12">وكيل البرمجة المتخصص بنماذج Solar Pro 3</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="connector-item !p-6" onclick="quickAction('تحليل مستودع GitHub')">
                         <i class="fa-brands fa-github text-white text-2xl mb-2"></i>
@@ -123,14 +119,23 @@
 
     <div class="fixed bottom-0 left-0 right-0 p-6 z-40">
         <div class="max-w-3xl mx-auto">
-            <div class="glass-input-container rounded-[28px] p-3 flex items-end gap-3 shadow-2xl">
-                <button onclick="openSheet('toolsSheet')" class="w-11 h-11 rounded-2xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition flex-shrink-0 border border-white/5">
-                    <i class="fa-solid fa-plus text-gray-400 text-lg"></i>
-                </button>
-                <textarea id="userInput" rows="1" placeholder="اسأل أفنان في البرمجة..." class="flex-1 bg-transparent border-none focus:ring-0 text-sm py-3 px-1 resize-none max-h-40 hide-scrollbar text-white placeholder-gray-600" oninput="autoResize(this)"></textarea>
-                <button onclick="handleSend()" class="w-11 h-11 rounded-2xl bg-white flex items-center justify-center hover:opacity-90 transition flex-shrink-0">
-                    <i class="fa-solid fa-arrow-up text-black"></i>
-                </button>
+            <div class="glass-input-container rounded-[28px] p-3 flex flex-col shadow-2xl">
+                <div id="imagePreviewContainer" class="flex items-center gap-2">
+                    <div class="relative">
+                        <img id="imagePreview" src="" class="preview-img">
+                        <button onclick="clearImage()" class="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-[10px] text-white"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                </div>
+                <div class="flex items-end gap-3">
+                    <button onclick="triggerImageUpload()" class="w-11 h-11 rounded-2xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition flex-shrink-0 border border-white/5">
+                        <i class="fa-solid fa-image text-gray-400 text-lg"></i>
+                    </button>
+                    <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="handleImageSelect(this)">
+                    <textarea id="userInput" rows="1" placeholder="اسأل أفنان في البرمجة..." class="flex-1 bg-transparent border-none focus:ring-0 text-sm py-3 px-1 resize-none max-h-40 hide-scrollbar text-white placeholder-gray-600" oninput="autoResize(this)"></textarea>
+                    <button onclick="handleSend()" class="w-11 h-11 rounded-2xl bg-white flex items-center justify-center hover:opacity-90 transition flex-shrink-0">
+                        <i class="fa-solid fa-arrow-up text-black"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -167,8 +172,9 @@
         let credits = 300;
         let currentMode = 'flash';
         let isPro = false;
+        let selectedImageBase64 = null;
         const aiLogo = "https://i.postimg.cc/26TTPbxH/grok-image-x6em5fj-edit-96291120058942.png";
-        const API_URL = "/api/chat"; // تم التأكد من المسار النسبي ليعمل على Vercel
+        const API_URL = "/api/chat";
 
         onAuthStateChanged(auth, (user) => {
             if (!user) window.location.replace('login.html');
@@ -180,11 +186,31 @@
             document.getElementById('userName').innerText = currentUser.displayName || currentUser.email.split('@')[0];
             document.getElementById('userEmail').innerText = currentUser.email;
             document.getElementById('userAvatar').src = currentUser.photoURL || `https://ui-avatars.com/api/?name=${currentUser.email}&background=random`;
-            
             credits = parseInt(localStorage.getItem(`credits_${currentUser.uid}`)) || 300;
             isPro = localStorage.getItem(`isPro_${currentUser.uid}`) === 'true';
             document.getElementById('userCredits').innerText = `${credits} Credit`;
         }
+
+        window.triggerImageUpload = () => document.getElementById('imageInput').click();
+        
+        window.handleImageSelect = (input) => {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    selectedImageBase64 = e.target.result;
+                    document.getElementById('imagePreview').src = selectedImageBase64;
+                    document.getElementById('imagePreviewContainer').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        window.clearImage = () => {
+            selectedImageBase64 = null;
+            document.getElementById('imageInput').value = '';
+            document.getElementById('imagePreviewContainer').style.display = 'none';
+        };
 
         window.toggleSidebar = () => {
             const sidebar = document.getElementById('sidebar');
@@ -199,9 +225,7 @@
 
         window.setMode = (mode) => {
             if (mode === 'max' && !isPro) {
-                if(confirm('نموذج Max متاح فقط لمشتركي PRO. هل تريد الانتقال لصفحة الترقية؟')) {
-                    window.location.href = 'pro.html';
-                }
+                if(confirm('نموذج Max متاح فقط لمشتركي PRO. هل تريد الانتقال لصفحة الترقية؟')) window.location.href = 'pro.html';
                 return;
             }
             currentMode = mode;
@@ -213,8 +237,7 @@
         window.handleSend = async (customText = null) => {
             const input = document.getElementById('userInput');
             const text = customText || input.value.trim();
-            if (!text) return;
-
+            if (!text && !selectedImageBase64) return;
             if (credits < 1) { alert('رصيدك نفد! يرجى الترقية.'); return; }
 
             document.getElementById('galleryView').style.display = 'none';
@@ -224,7 +247,8 @@
             
             const userDiv = document.createElement('div');
             userDiv.className = 'flex gap-4 items-start flex-row-reverse animate-msg';
-            userDiv.innerHTML = `<div class="w-9 h-9 rounded-xl bg-white/5 flex-shrink-0 flex items-center justify-center border border-white/5"><i class="fa-solid fa-user text-gray-500 text-xs"></i></div><div class="chat-bubble-user text-right"><p class="text-sm leading-relaxed">${text}</p></div>`;
+            let imgHtml = selectedImageBase64 ? `<img src="${selectedImageBase64}" class="w-32 rounded-lg mb-2 border border-white/10">` : '';
+            userDiv.innerHTML = `<div class="w-9 h-9 rounded-xl bg-white/5 flex-shrink-0 flex items-center justify-center border border-white/5"><i class="fa-solid fa-user text-gray-500 text-xs"></i></div><div class="chat-bubble-user text-right">${imgHtml}<p class="text-sm leading-relaxed">${text}</p></div>`;
             container.appendChild(userDiv);
 
             const loadingDiv = document.createElement('div');
@@ -233,20 +257,31 @@
             container.appendChild(loadingDiv);
             document.getElementById('chatView').scrollTo({ top: document.getElementById('chatView').scrollHeight, behavior: 'smooth' });
 
+            const currentImage = selectedImageBase64;
             if (!customText) input.value = '';
             input.style.height = 'auto';
+            clearImage();
             saveToHistory(text);
 
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: text, mode: currentMode, isPro: isPro })
+                    body: JSON.stringify({ 
+                        message: text, 
+                        userId: currentUser.uid, 
+                        mode: currentMode, 
+                        image: currentImage 
+                    })
                 });
-                const data = await response.json();
                 
-                if (data.error) throw new Error(data.error);
+                // التحقق من نجاح الطلب قبل محاولة الـ Parsing
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'خطأ في الخادم');
+                }
 
+                const data = await response.json();
                 loadingDiv.innerHTML = `<img src="${aiLogo}" class="ai-logo-img flex-shrink-0"><div class="chat-bubble-ai"><p class="text-sm leading-7 text-gray-200">${data.output}</p></div>`;
                 
                 let consumption = currentMode === 'max' ? 2 : 1;
